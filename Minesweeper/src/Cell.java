@@ -56,4 +56,9 @@ public abstract class Cell {
         setFlagged(tmp);
     }
 
+    public void show(){
+    }
+
+    public void plantTheCell(Cell a[][]){
+    }
 }

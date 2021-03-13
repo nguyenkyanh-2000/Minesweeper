@@ -31,10 +31,10 @@ public class Board {
      * Methods
      */
 
-    public void placeEmptyandMines(){
+    public void placeEmptyandMine(){
         MineList.clear();
         int tmp = 0;
-        for (int i = 0; i <= mode.getHeight()-1; i++){
+        for (int i = 0; i <= mode.getHeight() - 1; i++){
             for (int j = 0; j <= mode.getWidth() - 1; j++) {
                 if (tmp < mode.getNumofMines()) {
                     CellCollection[i][j] = new MineCell(i, j);
@@ -46,17 +46,25 @@ public class Board {
             }
         }
         shuffleCells(CellCollection);
-        locateMines(CellCollection);
     }
 
+
     public void placeValue(){
-        for (int i=0; i<=MineList.size();i++){
+        for (int i=0; i < MineList.size();i++){
                 for (int j = -1; j <= 1; j++ ){
                     for (int k = -1; k <= 1; k++){
                         int xx = j + MineList.get(i).x;
                         int yy = k + MineList.get(i).y;
-                        if (xx >=0 && xx <= mode.getHeight() && yy <= mode.getWidth() && yy >=0){
-                            CellCollection[xx][yy] = new ValueCell(xx, yy);
+                        if (xx < 0  || xx > mode.getHeight() - 1 || yy > mode.getWidth() - 1 || yy < 0){
+                            continue;
+                        }
+                        else {
+                            if (CellCollection[xx][yy] instanceof EmptyCell) {
+                                CellCollection[xx][yy] = new ValueCell(xx, yy);
+                            }
+                            else if (CellCollection[xx][yy] instanceof ValueCell){
+                                ((ValueCell) CellCollection[xx][yy]).increaseValue( );
+                            }
                         }
                     }
                 }
@@ -87,26 +95,19 @@ public class Board {
         }
     }
 
-    public void drawBoard(){
-        placeEmptyandMines();
+    public void makeNewBoard(){
+        placeEmptyandMine();
+        locateMines(CellCollection);
         placeValue();
-        for (int i = 0; i <= mode.getHeight()-1; i++){
-                System.out.println();
-                for (int j = 0; j <= mode.getWidth() - 1; j++) {
-                    if (CellCollection[i][j] instanceof EmptyCell) {
-                        System.out.print("E");
-                    }
-                    else if (CellCollection[i][j] instanceof MineCell) {
-                        System.out.print("M");
-                    }
-                    else if (CellCollection[i][j] instanceof ValueCell) {
-                        System.out.print("V");
-                    }
-
-                }
-        }
-        System.out.println();
-        System.out.print(MineList.get(1).x + " " + MineList.get(1).y);
+        drawCurrentBoard();
     }
 
+    public void drawCurrentBoard() {
+        for (int i = 0; i <= mode.getHeight()-1; i++){
+            System.out.println();
+            for (int j = 0; j <= mode.getWidth() - 1; j++) {
+               CellCollection[i][j].show();
+            }
+        }
+    }
 }
