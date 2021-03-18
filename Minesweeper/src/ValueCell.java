@@ -18,11 +18,13 @@ public class ValueCell extends Cell{
     }
 
     public void show(){
-        System.out.print(value);
+        if (this.isRevealed() == false){
+            System.out.print("* ");
+        }
+        else{
+            System.out.print(this.value + " ");
+        }
     }
 
-    public void plantTheCell(Cell a[][]){
-        a[getxPosition()][ getyPosition()] = new ValueCell(getxPosition(), getyPosition());
-    }
 }
 

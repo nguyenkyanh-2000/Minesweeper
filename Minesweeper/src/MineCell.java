@@ -6,10 +6,12 @@ public class MineCell extends Cell{
     }
 
     public void show(){
-        System.out.print("M");
+        if (this.isRevealed() == false){
+            System.out.print("* ");
+        }
+        else{
+            System.out.print("M ");
+        }
     }
 
-    public void plantTheCell(Cell a[][]){
-        a[getxPosition()][ getyPosition()] = new MineCell(getxPosition(), getyPosition());
-    }
 }

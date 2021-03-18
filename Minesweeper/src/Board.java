@@ -1,21 +1,19 @@
 import java.util.ArrayList;
-import java.util.Random;
-
-class Point{
-    int x;
-    int y;
-    
-    Point(int x, int y){
-        this.x = x;
-        this.y = y;
-    }
-}
+import java.util.Collections;
 
 public class Board {
 
-    private Mode mode;
-    private Cell CellCollection[][];
-    ArrayList <Point> MineList = new ArrayList<Point>();
+    static Mode mode;
+
+    public static Mode getMode() {
+        return mode;
+    }
+
+    public static ArrayList<Cell> getCellCollection() {
+        return CellCollection;
+    }
+
+    static ArrayList <Cell> CellCollection, MineList = new ArrayList<Cell>();
 
     /**
      * Default board = "Beginner"
@@ -24,8 +22,11 @@ public class Board {
 
     public Board() {
         mode = Mode.BEGINNER;
-        CellCollection = new Cell[mode.getHeight()][mode.getWidth()];
+        CellCollection = new ArrayList<Cell>();
     }
+    /**
+     * Getters & Setters
+     */
 
     /**
      * Methods
@@ -37,76 +38,110 @@ public class Board {
         for (int i = 0; i <= mode.getHeight() - 1; i++){
             for (int j = 0; j <= mode.getWidth() - 1; j++) {
                 if (tmp < mode.getNumofMines()) {
-                    CellCollection[i][j] = new MineCell(i, j);
+                    CellCollection.add(new MineCell(i, j));
                     tmp++;
                 }
                 else {
-                    CellCollection[i][j] = new EmptyCell(i, j);
+                    CellCollection.add(new EmptyCell(i, j));
                 }
             }
         }
-        shuffleCells(CellCollection);
+        //shuffleCells(CellCollection);
     }
 
 
-    public void placeValue(){
-        for (int i=0; i < MineList.size();i++){
-                for (int j = -1; j <= 1; j++ ){
-                    for (int k = -1; k <= 1; k++){
-                        int xx = j + MineList.get(i).x;
-                        int yy = k + MineList.get(i).y;
-                        if (xx < 0  || xx > mode.getHeight() - 1 || yy > mode.getWidth() - 1 || yy < 0){
-                            continue;
-                        }
-                        else {
-                            if (CellCollection[xx][yy] instanceof EmptyCell) {
-                                CellCollection[xx][yy] = new ValueCell(xx, yy);
-                            }
-                            else if (CellCollection[xx][yy] instanceof ValueCell){
-                                ((ValueCell) CellCollection[xx][yy]).increaseValue( );
-                            }
-                        }
-                    }
+    public void placeValue() {
+        for (Cell i: MineList) {
+            for (Cell j: i.getMyNeighbours()) {
+                if (j instanceof EmptyCell){
+                    j = new ValueCell(j.getxPosition(), j.getyPosition());
                 }
+                else if (j instanceof ValueCell){
+                    ((ValueCell) j).increaseValue();
+                }
+            }
         }
+    }
+
+    public void swapCells(Cell c1, Cell c2){
+
+        int tmpX = c1.getxPosition();
+        int tmpY = c1.getyPosition();
+        boolean tmpF = c1.isFlagged();
+        boolean tmpR = c1.isRevealed();
+        Cell tmp = c1;
+
+        // Cell 1 turns into cell 2
+        c1.setxPosition(c2.getxPosition());
+        c1.setyPosition(c2.getyPosition());
+        c1.setRevealed(c2.isRevealed());
+        c1.setFlagged(c2.isFlagged());
+        c1 = c2;
+
+        // Cell 2 turns into cell 1
+        c2.setxPosition(tmpX);
+        c2.setyPosition(tmpY);
+        c2.setRevealed(tmpR);
+        c2.setFlagged(tmpF);
+        c2 = tmp;
+
     }
 
     public void shuffleCells(Cell a[][]) {
-        Random random = new Random();
-        for (int i = a.length - 1; i > 0; i--) {
-            for (int j = a[i].length - 1; j > 0; j--) {
-                int m = random.nextInt(i + 1);
-                int n = random.nextInt(j + 1);
-                Cell tempCell = a[i][j];
-                a[i][j] = a[m][n];
-                a[m][n] = tempCell;
+        ArrayList <Cell> CellList = new ArrayList<Cell>();
+        for (int i = 0; i <= mode.getHeight() - 1 ;i++){
+            for (int j = 0; j <= mode.getWidth() - 1; j++){
+                CellList.add(a[i][j]);
             }
+        }
+        Collections.shuffle(CellList);
+        int i_row = -1;
+        for (int i = 0; i <= CellList.size() - 1; i++){
+            int i_col = i % mode.getWidth();
+            if (i_col == 0){
+                i_row++;
+            }
+            CellList.get(i).setxPosition(i_col);
+            CellList.get(i).setyPosition(i_row);
         }
     }
 
-    public void locateMines(Cell a[][]) {
-        for (int i = 0; i <= mode.getHeight() - 1; i++) {
+
+    public ArrayList<Cell> getMineList() {
+        return MineList;
+    }
+
+    /**public void locateMines(){
+        for (int i = 0; i <= mode.getHeight() - 1; i++){
             for (int j = 0; j <= mode.getWidth() - 1; j++) {
-                if (a[i][j] instanceof MineCell) {
-                    Point tmp = new Point(i,j);
-                    MineList.add(tmp);
+                if (CellCollection[i][j] instanceof MineCell){
+                    int xx = ((MineCell) CellCollection[i][j]).getxPosition();
+                    int yy = ((MineCell) CellCollection[i][j]).getyPosition();
+                    MineList.add(CellCollection[xx][yy]);
                 }
             }
         }
-    }
+    }**/
 
     public void makeNewBoard(){
         placeEmptyandMine();
-        locateMines(CellCollection);
-        placeValue();
-        drawCurrentBoard();
     }
 
-    public void drawCurrentBoard() {
+    public void showCurrentBoard() {
         for (int i = 0; i <= mode.getHeight()-1; i++){
             System.out.println();
             for (int j = 0; j <= mode.getWidth() - 1; j++) {
-               CellCollection[i][j].show();
+                CellCollection.get(i*j + j).show();
+            }
+        }
+    }
+
+    public void showEveryCell() {
+        for (int i = 0; i <= mode.getHeight()-1; i++){
+            System.out.println();
+            for (int j = 0; j <= mode.getWidth() - 1; j++) {
+                CellCollection.get(i*j + j).setRevealed(true);
+                CellCollection.get(i*j + j).show();
             }
         }
     }
