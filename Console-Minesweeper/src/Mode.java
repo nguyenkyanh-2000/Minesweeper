@@ -32,4 +32,6 @@ public enum Mode {
         public int getNumofMines() {
             return numofMines;
         }
+
+        public int getNumofCells(){ return width * height;}
 }

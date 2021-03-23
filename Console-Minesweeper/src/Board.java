@@ -4,6 +4,7 @@ import java.util.List;
 
 public class Board {
 
+    static boolean isFirstClick;
     static Mode mode;
     int width;
     int height;
@@ -13,6 +14,8 @@ public class Board {
     static List<Cell> MineList = new ArrayList<Cell>();
 
     public Board(String GameMode){
+
+        isFirstClick = true;
         mode = mode.valueOf(GameMode);
         width = mode.getWidth();
         height = mode.getHeight();
@@ -21,6 +24,7 @@ public class Board {
         placeEmptyAndMineCells();
         updatePosition();
         placeValueCells();
+       
     }
 
     /**
@@ -89,13 +93,23 @@ public class Board {
             }
         }
         System.out.println();
-        System.out.println("The score is " + score);
+        System.out.println("You clicked a mine cell! The score is " + score);
+        System.exit(0);
     }
 
     public void leftClick(int x, int y) {
         Cell tmp = CellCollection.get(Cell.to1dIndex(x, y));
+        while (tmp instanceof MineCell){
+            score = 0;
+            minesLeft = mode.getNumofMines();
+            placeEmptyAndMineCells();
+            updatePosition();
+            placeValueCells();
+            tmp = CellCollection.get(Cell.to1dIndex(x, y));
+        }
+        isFirstClick = false;
         if (tmp.isRevealed) {
-            System.out.println("This cell is already opened!. Choose a different cell!");
+            System.out.println("This cell is already opened! Choose a different cell!");
         } else {
             if (tmp.isFlagged == false) {
                 tmp.useLeftClick();
@@ -136,5 +150,15 @@ public class Board {
         return score;
     }
 
+    public int getWidth() {
+        return width;
+    }
 
+    public int getHeight() {
+        return height;
+    }
+
+    public int getMinesLeft() {
+        return minesLeft;
+    }
 }

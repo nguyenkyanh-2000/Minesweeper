@@ -56,6 +56,7 @@ public class Cell {
 
     public List<Integer> getMyNeighbours() {
         List <Integer> tmp = new ArrayList<Integer>();
+        tmp.add(to1dIndex(x,y));
         Mode m = Board.getMode();
         for (int j = -1; j <= 1; j++ ) {
             for (int k = -1; k <= 1; k++) {
